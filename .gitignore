@@ -1,0 +1,10 @@
+build/
+.vs/
+*.user
+third_party/dl/
+third_party/webview2/
+third_party/wil/
+tests/fixtures/.preview/
+temp-img/
+
+docs/
