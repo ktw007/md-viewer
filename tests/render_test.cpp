@@ -90,6 +90,7 @@ int main() {
     expect(page.html.find("data-anchor=\"标题\"") != std::string::npos, "anchor");
     expect(page.html.find("<script src=") != std::string::npos && page.html.find("viewer.js") != std::string::npos,
            "page script missing");
+    expect(page.html.find("prism.min.js") != std::string::npos, "prism script missing");
     expect(page.html.find("alert(1)") == std::string::npos || page.html.find("&lt;script&gt;") != std::string::npos,
            "composed page lost escaping");
 

@@ -51,28 +51,28 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("fonts/SourceHanSerifSC-Regular.otf") format("opentype");
+  src: url("fonts/SourceHanSerifSC-Regular.woff2") format("woff2");
 }
 @font-face {
   font-family: "Source Han Serif SC";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url("fonts/SourceHanSerifSC-Regular.otf") format("opentype");
+  src: url("fonts/SourceHanSerifSC-Regular.woff2") format("woff2");
 }
 @font-face {
   font-family: "Source Han Serif SC";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("fonts/SourceHanSerifSC-SemiBold.otf") format("opentype");
+  src: url("fonts/SourceHanSerifSC-SemiBold.woff2") format("woff2");
 }
 @font-face {
   font-family: "Source Han Serif SC";
   font-style: italic;
   font-weight: 600;
   font-display: swap;
-  src: url("fonts/SourceHanSerifSC-SemiBold.otf") format("opentype");
+  src: url("fonts/SourceHanSerifSC-SemiBold.woff2") format("woff2");
 }
 @font-face {
   font-family: "Md Circled";
@@ -102,10 +102,14 @@
   --code-bg: #efebe1;
   --accent: #a23b2a;
   --accent-soft: #a23b2a14;
-  --tok-k: #5c5346;
-  --tok-s: #6e5a3e;
+  --tok-k: #9e382b;
+  --tok-s: #2d6945;
   --tok-c: #8a847a;
-  --tok-n: #4e5a52;
+  --tok-n: #a05a1c;
+  --tok-fn: #265d91;
+  --tok-cls: #6e3d8f;
+  --tok-op: #6e6456;
+  --tok-punc: #7a7366;
   color-scheme: light;
 }
 
@@ -119,10 +123,14 @@
   --code-bg: #2a2825;
   --accent: #e08a72;
   --accent-soft: #e08a7222;
-  --tok-k: #d2c4ae;
-  --tok-s: #d7b98a;
-  --tok-c: #8f897f;
-  --tok-n: #b7c4b4;
+  --tok-k: #ff7b72;
+  --tok-s: #7ee787;
+  --tok-c: #828a96;
+  --tok-n: #f0883e;
+  --tok-fn: #79c0ff;
+  --tok-cls: #d2a8ff;
+  --tok-op: #c9d1d9;
+  --tok-punc: #8b949e;
   color-scheme: dark;
 }
 
@@ -135,10 +143,14 @@
   --code-bg: #e6e9ee;
   --accent: #a23b2a;
   --accent-soft: #a23b2a14;
-  --tok-k: #3e4654;
-  --tok-s: #5c4e3e;
+  --tok-k: #9b382d;
+  --tok-s: #28643f;
   --tok-c: #7d8490;
-  --tok-n: #3d5348;
+  --tok-n: #9c5417;
+  --tok-fn: #245788;
+  --tok-cls: #673986;
+  --tok-op: #596273;
+  --tok-punc: #6c7380;
   color-scheme: light;
 }
 
@@ -748,6 +760,17 @@ body[data-font="sans"] .block-text code { font-family: var(--font-sans); }
 .tok-s { color: var(--tok-s); }
 .tok-c { color: var(--tok-c); }
 .tok-n { color: var(--tok-n); }
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--tok-c); font-style: italic; }
+.token.punctuation { color: var(--tok-punc); }
+.token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: var(--tok-n); }
+.token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: var(--tok-s); }
+.token.operator, .token.entity, .token.url { color: var(--tok-op); }
+.token.atrule, .token.attr-value, .token.keyword { color: var(--tok-k); font-weight: 500; }
+.token.function { color: var(--tok-fn); }
+.token.class-name, .token.type { color: var(--tok-cls); }
+.token.regex, .token.important, .token.variable { color: var(--tok-n); }
+.token.important, .token.bold { font-weight: bold; }
+.token.italic { font-style: italic; }
 .raw-fallback {
   white-space: pre-wrap;
   overflow-wrap: anywhere;

@@ -8,7 +8,8 @@ A native Windows desktop app: a C++20 / Win32 window shell that renders pages wi
 
 ## Features
 
-- **Reading-first typography**: serif fonts and generous line spacing. Source Serif 4 and Source Han Serif (思源宋体) are bundled, so nothing depends on system fonts or the network.
+- **Reading-first typography**: serif fonts and generous line spacing. Source Serif 4 and subsetted Source Han Serif SC (思源宋体, 7500+ common characters and symbols) are bundled as compact WOFF2, so nothing depends on system fonts or the network.
+- **Syntax highlighting**: bundled offline Prism.js syntax highlighting for C/C++, C#, Java, Python, Rust, Go, JavaScript, TypeScript, Bash, JSON, YAML, SQL, HTML/CSS, Markdown, and more, seamlessly adapted to the Paper, Ink, and Mist themes.
 - **Table of contents**: a sidebar outline is generated automatically; click to jump.
 - **Change notice**: the current file is watched. When you save it in your editor, the viewer shows "File updated" (「文件已更新」); click "Refresh" (「刷新」) or press `F5` to reload. If the file is moved or deleted, it shows "File moved or deleted" (「文件已移动或删除」).
 - **Encoding detection**: tried in this order: UTF-8 (with or without BOM), UTF-16 LE with BOM, UTF-16 BE with BOM, GB18030, then the system ANSI code page. Files larger than 32 MB or containing NUL bytes are refused.

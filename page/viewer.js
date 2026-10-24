@@ -545,7 +545,16 @@
     sh: "if then else elif fi for while do done case esac function return in"
   };
   const languageNames = {
-    cpp: "C++", c: "C", js: "JavaScript", ts: "TypeScript", py: "Python", rs: "Rust", go: "Go", sh: "Shell"
+    cpp: "C++", c: "C", csharp: "C#", cs: "C#", java: "Java",
+    javascript: "JavaScript", js: "JavaScript",
+    typescript: "TypeScript", ts: "TypeScript",
+    python: "Python", py: "Python",
+    rust: "Rust", rs: "Rust",
+    go: "Go",
+    bash: "Bash", sh: "Shell",
+    json: "JSON", yaml: "YAML", yml: "YAML",
+    sql: "SQL", markup: "HTML", html: "HTML", xml: "XML", css: "CSS",
+    markdown: "Markdown", md: "Markdown"
   };
 
   function rawLanguage(element) {
@@ -553,14 +562,24 @@
     return match ? match[1] : "";
   }
   function languageKey(name) {
-    const value = (name || "").toLowerCase();
+    const value = (name || "").toLowerCase().trim();
     if (value === "c++" || value === "cc" || value === "cxx" || value === "hpp") return "cpp";
-    if (value === "javascript" || value === "jsx") return "js";
-    if (value === "typescript" || value === "tsx") return "ts";
-    if (value === "python") return "py";
-    if (value === "rust") return "rs";
-    if (value === "golang") return "go";
-    if (value === "bash" || value === "shell" || value === "zsh") return "sh";
+    if (value === "c#" || value === "cs" || value === "csharp") return "csharp";
+    if (value === "javascript" || value === "js" || value === "jsx") return "javascript";
+    if (value === "typescript" || value === "ts" || value === "tsx") return "typescript";
+    if (value === "python" || value === "py") return "python";
+    if (value === "rust" || value === "rs") return "rust";
+    if (value === "golang" || value === "go") return "go";
+    if (value === "bash" || value === "shell" || value === "zsh" || value === "sh") return "bash";
+    if (value === "json") return "json";
+    if (value === "yaml" || value === "yml") return "yaml";
+    if (value === "sql") return "sql";
+    if (value === "html" || value === "htm" || value === "xml" || value === "svg") return "markup";
+    if (value === "css") return "css";
+    if (value === "markdown" || value === "md") return "markdown";
+    if (value === "java") return "java";
+    if (value === "c") return "c";
+    if (window.Prism && Prism.languages[value]) return value;
     return keywords[value] ? value : "";
   }
   function cjkRatio(text) {
@@ -578,6 +597,53 @@
     return text.replace(/[&<>]/g, function (c) {
       return c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;";
     });
+  }
+  function highlightWithPrism(source, lang) {
+    if (!window.Prism || !lang || !Prism.languages[lang]) return null;
+    try {
+      const grammar = Prism.languages[lang];
+      const tokens = Prism.tokenize(source, grammar);
+      const lines = [[]];
+      function walk(token, parentClasses) {
+        if (typeof token === "string") {
+          const parts = token.split("\n");
+          for (let i = 0; i < parts.length; i++) {
+            if (i > 0) lines.push([]);
+            if (parts[i].length > 0) {
+              if (parentClasses) {
+                lines[lines.length - 1].push('<span class="' + parentClasses + '">' + escapeHtml(parts[i]) + '</span>');
+              } else {
+                lines[lines.length - 1].push(escapeHtml(parts[i]));
+              }
+            }
+          }
+        } else if (Array.isArray(token)) {
+          for (let i = 0; i < token.length; i++) walk(token[i], parentClasses);
+        } else {
+          const type = token.type;
+          const aliases = token.alias ? (Array.isArray(token.alias) ? token.alias : [token.alias]) : [];
+          const classes = ['token', type].concat(aliases).concat(parentClasses ? [parentClasses] : []).join(' ');
+          if (typeof token.content === "string") {
+            const parts = token.content.split("\n");
+            for (let i = 0; i < parts.length; i++) {
+              if (i > 0) lines.push([]);
+              if (parts[i].length > 0) {
+                lines[lines.length - 1].push('<span class="' + classes + '">' + escapeHtml(parts[i]) + '</span>');
+              }
+            }
+          } else {
+            walk(token.content, classes);
+          }
+        }
+      }
+      walk(tokens, "");
+      if (source.endsWith("\n") && lines.length > 1 && lines[lines.length - 1].length === 0) {
+        lines.pop();
+      }
+      return lines.map(function (p) { return p.join("") || " "; });
+    } catch (e) {
+      return null;
+    }
   }
   function highlightLine(source, words) {
     const set = words ? new Set(words.split(" ")) : null;
@@ -622,14 +688,19 @@
   }
 
   function renderCode(code, source, withLines) {
-    const key = languageKey(rawLanguage(code));
-    const words = keywords[key];
-    const lines = source.replace(/\n$/, "").split("\n");
+    const raw = rawLanguage(code);
+    const key = languageKey(raw);
+    let lineHtmls = highlightWithPrism(source, key);
+    if (!lineHtmls) {
+      const words = keywords[key];
+      const lines = source.replace(/\n$/, "").split("\n");
+      lineHtmls = lines.map(function (l) { return highlightLine(l, words) || " "; });
+    }
     code.textContent = "";
-    lines.forEach(function (line) {
+    lineHtmls.forEach(function (html) {
       const span = document.createElement("span");
       span.className = "line";
-      span.innerHTML = highlightLine(line, words) || " ";
+      span.innerHTML = html;
       code.appendChild(span);
     });
     code.classList.toggle("has-lines", withLines);

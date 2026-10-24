@@ -117,6 +117,8 @@ Page compose_page(std::string_view fragment, std::string_view title, const Compo
         "</aside>\n"
         "</div>\n<script src=\"";
     page.html += escape_html(asset);
+    page.html += "/prism.min.js?v=" MDV_ASSET_VERSION "\"></script>\n<script src=\"";
+    page.html += escape_html(asset);
     page.html += "/viewer.js?v=" MDV_ASSET_VERSION "\"></script>\n</body>\n</html>\n";
     return page;
 }
