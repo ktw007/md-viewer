@@ -5,6 +5,10 @@
 #include <locale>
 #include <sstream>
 
+#ifndef MDV_ASSET_VERSION
+#define MDV_ASSET_VERSION "7"
+#endif
+
 namespace mdv {
 namespace {
 
@@ -56,7 +60,7 @@ Page compose_page(std::string_view fragment, std::string_view title, const Compo
     page.html += safe_title;
     page.html += "</title>\n<link rel=\"stylesheet\" href=\"";
     page.html += escape_html(asset);
-    page.html += "/viewer.css?v=7\">\n</head>\n<body data-scroll=\"";
+    page.html += "/viewer.css?v=" MDV_ASSET_VERSION "\">\n</head>\n<body data-scroll=\"";
     page.html += format_scroll(options.scroll);
     page.html += "\" data-anchor=\"";
     page.html += escape_html(options.anchor);
@@ -113,7 +117,7 @@ Page compose_page(std::string_view fragment, std::string_view title, const Compo
         "</aside>\n"
         "</div>\n<script src=\"";
     page.html += escape_html(asset);
-    page.html += "/viewer.js?v=7\"></script>\n</body>\n</html>\n";
+    page.html += "/viewer.js?v=" MDV_ASSET_VERSION "\"></script>\n</body>\n</html>\n";
     return page;
 }
 

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Setup Visual Studio developer command prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        .\scripts\setup-deps.ps1
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cmake --build build
+
+    - name: Run CTest
+      run: |
+        ctest --test-dir build --output-on-failure

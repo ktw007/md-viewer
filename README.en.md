@@ -93,7 +93,15 @@ cd md-viewer
 
 ### 2. Prepare third-party dependencies
 
-md4c is bundled (`third_party/md4c`). The WebView2 SDK and WIL are **not committed**; place them as follows:
+md4c is bundled (`third_party/md4c`). The WebView2 SDK and WIL are **not committed**. You can download and install them automatically using the helper script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup-deps.ps1
+```
+
+The script fetches verified stable NuGet packages and extracts them to `third_party/webview2` and `third_party/wil`.
+
+Alternatively, you can place them manually:
 
 | Dependency | Location | Source |
 |---|---|---|
@@ -101,26 +109,10 @@ md4c is bundled (`third_party/md4c`). The WebView2 SDK and WIL are **not committ
 | WebView2 SDK | `third_party/webview2` | NuGet package [Microsoft.Web.WebView2](https://www.nuget.org/packages/Microsoft.Web.WebView2) |
 | WIL | `third_party/wil` | NuGet package [Microsoft.Windows.ImplementationLibrary](https://www.nuget.org/packages/Microsoft.Windows.ImplementationLibrary), or [microsoft/wil](https://github.com/microsoft/wil) |
 
-A NuGet package is just a zip file, so you can download and extract it directly:
-
-```powershell
-# Pick the versions yourself, e.g. the latest stable on each NuGet page
-$v = "<version>"
-
-Invoke-WebRequest "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/$v" -OutFile webview2.zip
-Expand-Archive webview2.zip third_party\webview2
-
-Invoke-WebRequest "https://www.nuget.org/api/v2/package/Microsoft.Windows.ImplementationLibrary/$v" -OutFile wil.zip
-Expand-Archive wil.zip third_party\wil
-```
-
-`CMakeLists.txt` references these paths; check that they exist after extraction:
-
+Check that these paths exist after extraction:
 - `third_party/webview2/build/native/include` (headers such as `WebView2.h`)
 - `third_party/webview2/build/native/x64/WebView2LoaderStatic.lib` (static link, x64 only)
 - `third_party/wil/include` (e.g. `wil/com.h`)
-
-Note that WebView2 SDK and WIL have different version numbers; sharing `$v` above is only illustrative, so set each one separately.
 
 ### 3. Build
 
@@ -135,10 +127,17 @@ The output is `build\md-viewer.exe`. The build copies the whole `page/` director
 
 ### 4. Run the tests
 
-The render test `md-render-test` renders the sample Markdown files under `tests/fixtures` and checks the output:
+Run the test suite via CTest (includes Markdown render tests and platform encoding tests):
+
+```powershell
+ctest --test-dir build --output-on-failure
+```
+
+You can also run the test executables directly:
 
 ```powershell
 build\md-render-test.exe
+build\md-platform-test.exe
 ```
 
 ## Project layout
@@ -153,8 +152,9 @@ md-viewer/
 ├─ page/          page layer: viewer.css, viewer.js
 ├─ page/fonts/    bundled fonts (Source Serif 4, Source Han Serif SC) and OFL.txt
 ├─ resources/     icon, app.manifest, app.rc
-├─ tests/         render test and fixture documents
-├─ third_party/   md4c (bundled); webview2 and wil (provide yourself)
+├─ scripts/       dependency setup and helper scripts
+├─ tests/         render tests, platform encoding tests, and fixture documents
+├─ third_party/   md4c (bundled); webview2 and wil (fetched automatically via script)
 └─ CMakeLists.txt
 ```
 

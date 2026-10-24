@@ -97,41 +97,74 @@ FileText read_markdown_file(const std::filesystem::path& path) {
             return result;
         }
     }
-    if (std::find(bytes.begin(), bytes.end(), '\0') != bytes.end()) {
-        result.error = L"这不是一份文本。";
+    const char* data = bytes.data();
+    int length = static_cast<int>(bytes.size());
+
+    // Check UTF-16 LE with BOM (0xFF, 0xFE)
+    if (length >= 2 && static_cast<unsigned char>(data[0]) == 0xFF &&
+        static_cast<unsigned char>(data[1]) == 0xFE) {
+        const int payload_bytes = length - 2;
+        if (payload_bytes % static_cast<int>(sizeof(wchar_t)) != 0) {
+            result.error = L"UTF-16 字节长度不完整。";
+            return result;
+        }
+        const int chars = payload_bytes / static_cast<int>(sizeof(wchar_t));
+        std::wstring text(static_cast<size_t>(chars), L'\0');
+        if (chars > 0) {
+            std::memcpy(text.data(), data + 2, static_cast<size_t>(payload_bytes));
+        }
+        if (text.find(L'\0') != std::wstring::npos) {
+            result.error = L"这不是一份文本。";
+            return result;
+        }
+        if (!convert_wide(text, result.utf8, result.error)) {
+            return result;
+        }
+        result.ok = true;
         return result;
     }
 
-    const char* data = bytes.data();
-    int length = static_cast<int>(bytes.size());
+    // Check UTF-16 BE with BOM (0xFE, 0xFF)
+    if (length >= 2 && static_cast<unsigned char>(data[0]) == 0xFE &&
+        static_cast<unsigned char>(data[1]) == 0xFF) {
+        const int payload_bytes = length - 2;
+        if (payload_bytes % 2 != 0) {
+            result.error = L"UTF-16 字节长度不完整。";
+            return result;
+        }
+        const int chars = payload_bytes / 2;
+        std::wstring text;
+        text.resize(static_cast<size_t>(chars));
+        for (size_t i = 0; i < text.size(); ++i) {
+            const auto hi = static_cast<unsigned char>(data[2 + i * 2]);
+            const auto lo = static_cast<unsigned char>(data[3 + i * 2]);
+            const auto ch = static_cast<wchar_t>((hi << 8) | lo);
+            if (ch == L'\0') {
+                result.error = L"这不是一份文本。";
+                return result;
+            }
+            text[i] = ch;
+        }
+        if (!convert_wide(text, result.utf8, result.error)) {
+            return result;
+        }
+        result.ok = true;
+        return result;
+    }
+
+    // Strip UTF-8 BOM if present
     if (length >= 3 && static_cast<unsigned char>(data[0]) == 0xEF &&
         static_cast<unsigned char>(data[1]) == 0xBB && static_cast<unsigned char>(data[2]) == 0xBF) {
         data += 3;
         length -= 3;
-    } else if (length >= 2 && static_cast<unsigned char>(data[0]) == 0xFF &&
-               static_cast<unsigned char>(data[1]) == 0xFE) {
-        const auto* wide = reinterpret_cast<const wchar_t*>(data + 2);
-        const int chars = (length - 2) / static_cast<int>(sizeof(wchar_t));
-        std::wstring text(wide, wide + chars);
-        if (!convert_wide(text, result.utf8, result.error)) {
+    }
+
+    // For 8-bit encodings (UTF-8, GB18030, ANSI), NUL byte means binary
+    for (int i = 0; i < length; ++i) {
+        if (data[i] == '\0') {
+            result.error = L"这不是一份文本。";
             return result;
         }
-        result.ok = true;
-        return result;
-    } else if (length >= 2 && static_cast<unsigned char>(data[0]) == 0xFE &&
-               static_cast<unsigned char>(data[1]) == 0xFF) {
-        std::wstring text;
-        text.resize(static_cast<size_t>((length - 2) / 2));
-        for (size_t i = 0; i < text.size(); ++i) {
-            const auto hi = static_cast<unsigned char>(data[2 + i * 2]);
-            const auto lo = static_cast<unsigned char>(data[3 + i * 2]);
-            text[i] = static_cast<wchar_t>((hi << 8) | lo);
-        }
-        if (!convert_wide(text, result.utf8, result.error)) {
-            return result;
-        }
-        result.ok = true;
-        return result;
     }
 
     if (convert_codepage(data, length, CP_UTF8, result.utf8) ||

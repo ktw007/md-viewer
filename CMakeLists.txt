@@ -23,6 +23,10 @@ if(MSVC)
   target_compile_definitions(md4c PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
+if(NOT DEFINED MDV_ASSET_VERSION)
+  set(MDV_ASSET_VERSION "7")
+endif()
+
 add_library(mdv_document STATIC
   src/document/escape.cpp
   src/document/render.cpp
@@ -31,6 +35,9 @@ add_library(mdv_document STATIC
 )
 target_link_libraries(mdv_document PUBLIC md4c)
 target_include_directories(mdv_document PUBLIC src)
+target_compile_definitions(mdv_document PUBLIC
+  MDV_ASSET_VERSION="${MDV_ASSET_VERSION}"
+)
 if(MSVC)
   target_compile_options(mdv_document PRIVATE /W4)
 endif()
@@ -49,6 +56,21 @@ target_compile_definitions(md-render-test PRIVATE
 if(MSVC)
   target_compile_options(md-render-test PRIVATE /W4)
 endif()
+
+enable_testing()
+add_test(NAME RenderTest COMMAND md-render-test)
+
+add_executable(md-platform-test
+  tests/platform_test.cpp
+  src/platform/encoding.cpp
+  src/platform/paths.cpp
+)
+target_include_directories(md-platform-test PRIVATE src)
+target_link_libraries(md-platform-test PRIVATE shell32 ole32)
+if(MSVC)
+  target_compile_options(md-platform-test PRIVATE /W4)
+endif()
+add_test(NAME PlatformTest COMMAND md-platform-test)
 
 # Compile the icon directly. This Ninja tree's RC rule calls a cmcldeps wrapper that is not installed.
 set(MDV_APP_RES "${CMAKE_CURRENT_BINARY_DIR}/app.res")
@@ -120,4 +142,4 @@ add_custom_command(TARGET md-viewer POST_BUILD
   COMMENT "Copy page assets next to md-viewer"
 )
 
-add_dependencies(md-viewer md-render-test)
+add_dependencies(md-viewer md-render-test md-platform-test)

@@ -8,6 +8,10 @@
 #include <sstream>
 #include <string>
 
+#ifndef MDV_ASSET_VERSION
+#define MDV_ASSET_VERSION "7"
+#endif
+
 namespace {
 
 int g_failed = 0;
@@ -80,7 +84,7 @@ int main() {
     const mdv::Page page = mdv::compose_page(rendered.html, rendered.title, options);
     expect(page.html.find("data-theme=\"dark\"") != std::string::npos, "theme");
     expect(page.html.find("class=\"topbar\"") != std::string::npos, "topbar");
-    expect(page.html.find("viewer.css?v=7") != std::string::npos, "css version");
+    expect(page.html.find("viewer.css?v=" MDV_ASSET_VERSION) != std::string::npos, "css version");
     expect(page.html.find("Content-Security-Policy") != std::string::npos, "csp");
     expect(page.html.find("data-scroll=\"0.250000\"") != std::string::npos, "scroll");
     expect(page.html.find("data-anchor=\"标题\"") != std::string::npos, "anchor");

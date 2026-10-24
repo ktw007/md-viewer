@@ -93,7 +93,15 @@ cd md-viewer
 
 ### 2. 准备第三方依赖
 
-仓库自带 md4c(`third_party/md4c`)。WebView2 SDK 和 WIL **没有提交进仓库**,需要自己放到下面的位置:
+仓库自带 md4c(`third_party/md4c`)。WebView2 SDK 和 WIL **没有提交进仓库**,可以直接运行项目提供的脚本一键下载安装:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup-deps.ps1
+```
+
+脚本会自动从 NuGet 获取经过兼容性验证的稳定版本解压到 `third_party/webview2` 和 `third_party/wil`。
+
+如需手动下载,可参考下表:
 
 | 依赖 | 放置位置 | 来源 |
 |---|---|---|
@@ -101,26 +109,10 @@ cd md-viewer
 | WebView2 SDK | `third_party/webview2` | NuGet 包 [Microsoft.Web.WebView2](https://www.nuget.org/packages/Microsoft.Web.WebView2) |
 | WIL | `third_party/wil` | NuGet 包 [Microsoft.Windows.ImplementationLibrary](https://www.nuget.org/packages/Microsoft.Windows.ImplementationLibrary),或 [microsoft/wil](https://github.com/microsoft/wil) |
 
-NuGet 包本质上是 zip 文件,可以直接下载解压:
-
-```powershell
-# 版本号请自行选择,例如从 NuGet 页面查看最新稳定版
-$v = "<版本号>"
-
-Invoke-WebRequest "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/$v" -OutFile webview2.zip
-Expand-Archive webview2.zip third_party\webview2
-
-Invoke-WebRequest "https://www.nuget.org/api/v2/package/Microsoft.Windows.ImplementationLibrary/$v" -OutFile wil.zip
-Expand-Archive wil.zip third_party\wil
-```
-
-`CMakeLists.txt` 引用以下路径,解压后请确认它们存在:
-
+解压后请确认以下路径存在:
 - `third_party/webview2/build/native/include`(头文件,如 `WebView2.h`)
 - `third_party/webview2/build/native/x64/WebView2LoaderStatic.lib`(静态链接,仅 x64)
 - `third_party/wil/include`(如 `wil/com.h`)
-
-注意 WebView2 SDK 与 WIL 的版本号不同,上面共用 `$v` 只是示意,请分别填写。
 
 ### 3. 构建
 
@@ -135,10 +127,17 @@ cmake --build build
 
 ### 4. 运行测试
 
-渲染测试 `md-render-test` 会把 `tests/fixtures` 下的示例 Markdown 渲染一遍并检查结果:
+使用 CTest 运行自动化测试套件(包括 Markdown 渲染测试与平台编码测试):
+
+```powershell
+ctest --test-dir build --output-on-failure
+```
+
+也可以直接执行对应的独立测试二进制:
 
 ```powershell
 build\md-render-test.exe
+build\md-platform-test.exe
 ```
 
 ## 项目结构
@@ -153,8 +152,9 @@ md-viewer/
 ├─ page/          页面层:viewer.css、viewer.js
 ├─ page/fonts/    内置字体(Source Serif 4、思源宋体)及 OFL.txt
 ├─ resources/     图标、app.manifest、app.rc
-├─ tests/         渲染测试与 fixtures 示例文档
-├─ third_party/   md4c(自带),webview2 与 wil(需自行准备)
+├─ scripts/       依赖自动获取与构建辅助脚本
+├─ tests/         渲染测试、平台编码测试及 fixtures 示例文档
+├─ third_party/   md4c(自带),webview2 与 wil(可通过脚本自动拉取)
 └─ CMakeLists.txt
 ```
 
