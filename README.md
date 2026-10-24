@@ -26,7 +26,7 @@ Windows 原生桌面应用,用 C++20 和 Win32 做窗口外壳,用 WebView2 渲�
 
 ## 快速开始
 
-到 [Releases](https://github.com/ktw007/md-viewer/releases/tag/v1.0.0) 下载 [md-viewer-windows-x64.zip](https://github.com/ktw007/md-viewer/releases/download/v1.0.0/md-viewer-windows-x64.zip)，解压后运行 `md-viewer.exe`。`assets` 目录要留在 exe 旁边。
+到 [Releases](https://github.com/ktw007/md-viewer/releases/latest) 下载 [md-viewer-windows-x64.zip](https://github.com/ktw007/md-viewer/releases/latest/download/md-viewer-windows-x64.zip)，解压后运行 `md-viewer.exe`。`assets` 目录要留在 exe 旁边。
 
 也可以按下文[从源码构建](#从源码构建)。
 

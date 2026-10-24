@@ -26,7 +26,7 @@ A native Windows desktop app: a C++20 / Win32 window shell that renders pages wi
 
 ## Quick start
 
-Download [md-viewer-windows-x64.zip](https://github.com/ktw007/md-viewer/releases/download/v1.0.0/md-viewer-windows-x64.zip) from [Releases](https://github.com/ktw007/md-viewer/releases/tag/v1.0.0), extract it, and run `md-viewer.exe`. Keep the `assets` folder next to the executable.
+Download [md-viewer-windows-x64.zip](https://github.com/ktw007/md-viewer/releases/latest/download/md-viewer-windows-x64.zip) from [Releases](https://github.com/ktw007/md-viewer/releases/latest), extract it, and run `md-viewer.exe`. Keep the `assets` folder next to the executable.
 
 You can also [build from source](#building-from-source).
 
